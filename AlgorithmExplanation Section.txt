@@ -1,0 +1,48 @@
+return (
+    <div className="bg-gray-900/30 backdrop-blur-sm border border-gray-800 rounded-xl p-8">
+      <h2 className="text-2xl font-bold text-white mb-6 text-center">Trusted Data Sources</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {dataSources.map((source, index) => (
+          <div key={index} className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-2xl">{source.icon}</span>
+              <div>
+                <h3 className="text-lg font-semibold text-white">{source.name}</h3>
+                <div className="text-xs text-emerald-400 font-medium">{source.reliability}</div>
+              </div>
+            </div>
+            <p className="text-gray-300 text-sm mb-3">{source.description}</p>
+            <div className="text-xs text-gray-400">
+              <span className="font-medium">Data Points: </span>
+              {source.dataPoints}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Data Freshness Indicator */}
+      <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+        <div className="flex items-center justify-center gap-2 text-emerald-400">
+          <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+          <span className="text-sm font-medium">Live Data • Updated Every 15 Minutes</span>
+        </div>
+      </div>
+      
+      {/* Enterprise Trust Indicators */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+        <div className="p-3 bg-gray-800/30 rounded-lg">
+          <div className="text-xl font-bold text-blue-400">1M+</div>
+          <div className="text-xs text-gray-400">DAOs Analyzed</div>
+        </div>
+        <div className="p-3 bg-gray-800/30 rounded-lg">
+          <div className="text-xl font-bold text-purple-400">99.9%</div>
+          <div className="text-xs text-gray-400">Data Accuracy</div>
+        </div>
+        <div className="p-3 bg-gray-800/30 rounded-lg">
+          <div className="text-xl font-bold text-cyan-400">24/7</div>
+          <div className="text-xs text-gray-400">Monitoring</div>
+        </div>
+      </div>
+    </div>
+  );
+};

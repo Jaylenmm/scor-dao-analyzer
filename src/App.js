@@ -1,5 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { Search, DollarSign, TrendingUp, AlertTriangle, CheckCircle, Users, Activity, ArrowLeft, Sun, Moon, Mail, Download } from 'lucide-react';
+import { 
+  Search, 
+  DollarSign, 
+  TrendingUp, 
+  AlertTriangle, 
+  CheckCircle, 
+  Users, 
+  Activity, 
+  ArrowLeft, 
+  Sun, 
+  Moon, 
+  Mail, 
+  Download 
+} from 'lucide-react';
+
+import { 
+  fetchEtherscanData, 
+  fetchCoinGeckoData, 
+  isValidEthereumAddress,
+  checkAPIHealth 
+} from './services/api';
+
+import { 
+  getCachedAnalysis, 
+  setCachedAnalysis, 
+  clearAnalysisCache 
+} from './services/cacheService';
+
+import { 
+  DEMO_ADDRESSES, 
+  DAO_NAMES, 
+  RISK_THRESHOLDS,
+  ALGORITHM_WEIGHTS 
+} from './constants/demoData';
+
+import PDFExportButton from './components/pdfExportButton';
 
 const ScorApp = () => {
   const [currentView, setCurrentView] = useState('landing'); // 'landing', 'app'
@@ -10,38 +45,6 @@ const ScorApp = () => {
   const [daoData, setDaoData] = useState(null);
   const [error, setError] = useState('');
   const [darkMode, setDarkMode] = useState(true);
-
-  // Whitelisted demo addresses
-  const demoAddresses = [
-    '0x28c6c06298d514db089934071355e5743bf21d60', // Binance 14
-    '0x21a31ee1afc51d94c2efccaa2092ad1028285549', // Binance 15  
-    '0xdfd5293d8e347dfe59e90efd55b2956a1343963d', // Binance 16
-    '0x56eddb7aa87536c09ccc2793473599fd21a8b17f', // Binance 17
-    '0x9696f59e4d72e237be84ffd425dcad154bf96976', // Yearn Treasury
-    '0x93a62da5a14c80f265dabc077fcee437b1a0efde', // Yearn Multisig
-    '0x5d3a536e4d6dbd6114cc1ead35777bab948e3643', // Compound cDAI
-    '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b', // Compound Ether  
-    '0x57ab1ec28d129707052df4df418d58a2d46d5f51', // Synthetix SNX
-    '0xa0b86a33e6411cbfc773c6e1f5e4c5c6ee9fc91c', // HexTrust DAO (if real)
-    '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2', // MakerDAO MKR Token
-    '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984', // Uniswap UNI Token
-  ];
-
-  // Demo DAO names mapping
-  const daoNames = {
-    '0x28c6c06298d514db089934071355e5743bf21d60': 'Binance 14',
-    '0x21a31ee1afc51d94c2efccaa2092ad1028285549': 'Binance 15',
-    '0xdfd5293d8e347dfe59e90efd55b2956a1343963d': 'Binance 16', 
-    '0x56eddb7aa87536c09ccc2793473599fd21a8b17f': 'Binance 17',
-    '0x9696f59e4d72e237be84ffd425dcad154bf96976': 'Yearn Treasury',
-    '0x93a62da5a14c80f265dabc077fcee437b1a0efde': 'Yearn Multisig',
-    '0x5d3a536e4d6dbd6114cc1ead35777bab948e3643': 'Compound cDAI',
-    '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b': 'Compound Ether',
-    '0x57ab1ec28d129707052df4df418d58a2d46d5f51': 'Synthetix SNX',
-    '0xa0b86a33e6411cbfc773c6e1f5e4c5c6ee9fc91c': 'HexTrust DAO',
-    '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2': 'MakerDAO MKR Token',
-    '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984': 'Uniswap UNI Token'
-  };
 
   // Email submission (in real app, this would go to your backend)
   const submitEmail = () => {
@@ -60,216 +63,6 @@ const ScorApp = () => {
 
   const enterApp = () => {
     setCurrentView('app');
-  };
-
-  // Cache management
-  const getCachedData = (address) => {
-    const cached = localStorage.getItem(`scor_analysis_${address}`);
-    if (cached) {
-      const { data, timestamp } = JSON.parse(cached);
-      const age = Date.now() - timestamp;
-      if (age < 24 * 60 * 60 * 1000) { // 24 hours
-        return { ...data, cacheTimestamp: timestamp };
-      }
-    }
-    return null;
-  };
-
-  const setCachedData = (address, data) => {
-    const cacheEntry = {
-      data,
-      timestamp: Date.now()
-    };
-    localStorage.setItem(`scor_analysis_${address}`, JSON.stringify(cacheEntry));
-  };
-
-  // PDF Export Function
-  const generatePDFReport = (daoData) => {
-    // In a real implementation, you'd install jsPDF: npm install jspdf
-    // For this demo, we'll create a downloadable text report
-    
-    const currentDate = new Date().toLocaleDateString();
-    const currentTime = new Date().toLocaleTimeString();
-    const cacheDate = daoData.cacheTimestamp ? new Date(daoData.cacheTimestamp).toLocaleString() : 'Live';
-    
-    const reportContent = `
-SCOR DAO RISK ASSESSMENT REPORT
-===============================
-
-Generated: ${currentDate} at ${currentTime}
-Report ID: SCOR-${Date.now()}
-Data Source: Live Blockchain Analysis (Etherscan + CoinGecko)
-Cache Date: ${cacheDate}
-
-DAO OVERVIEW
-============
-Name: ${daoData.name}
-Address: ${daoData.address}
-Analysis Type: Real Blockchain Data
-
-RISK ASSESSMENT
-===============
-Overall Risk Score: ${daoData.riskScore}/100
-Risk Level: ${daoData.riskLevel}
-Credit Decision: ${daoData.riskScore >= 70 ? 'APPROVED FOR FINANCING' : 'REQUIRES FURTHER REVIEW'}
-
-TREASURY ANALYSIS
-=================
-Total Value: $${daoData.balanceUSD}
-ETH Balance: ${daoData.balance} ETH
-Recent Transactions (30d): ${daoData.transactions30d}
-Total Transaction History: ${daoData.totalTransactions}
-Wallet Age: ${daoData.walletAge}
-
-RISK BREAKDOWN
-==============
-Treasury Health (30%): ${daoData.breakdown?.treasury || 'N/A'}/100
-Activity Score (25%): ${daoData.breakdown?.activity || 'N/A'}/100
-Diversification (20%): ${daoData.breakdown?.diversification || 'N/A'}/100
-Maturity Score (15%): ${daoData.breakdown?.maturity || 'N/A'}/100
-Transaction History (10%): ${daoData.breakdown?.history || 'N/A'}/100
-
-PORTFOLIO COMPOSITION
-====================
-${daoData.topHoldings.map(holding => 
-  `${holding.token}: ${holding.amount} (${holding.percentage}%) - $${holding.value?.toLocaleString() || 'N/A'}`
-).join('\n')}
-
-RISK FACTORS
-============
-Diversification Score: ${daoData.diversificationScore}/100
-Treasury Stability: ${daoData.treasuryStability}
-Governance Activity: ${daoData.governanceActivity}
-Payment Reliability: ${daoData.paymentReliability}%
-Last Activity: ${daoData.lastActivity}
-
-METHODOLOGY
-===========
-This analysis uses live blockchain data from:
-- Etherscan API (transaction history, balances, token holdings)
-- CoinGecko API (real-time token pricing)
-- Custom risk algorithms (treasury health, activity patterns)
-
-The risk score is calculated using a weighted algorithm:
-30% Treasury Health - Size, stability, and composition
-25% Transaction Activity - Volume and frequency of operations
-20% Asset Diversification - Spread across different tokens
-15% Wallet Maturity - Age and historical patterns
-10% Transaction History - Total activity and reliability
-
-DISCLAIMER
-==========
-This analysis is based on publicly available blockchain data and should be used as one factor in credit decisions. Past performance does not guarantee future results.
-
-Generated by scor - DAO Risk Assessment Platform
-For questions about this analysis, contact: hello@scor.com
-
----
-Report generated with live blockchain data
-Cache expires: ${new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleString()}
-    `;
-
-    // Create downloadable file
-    const blob = new Blob([reportContent], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${daoData.name.replace(/\s+/g, '_')}_Risk_Assessment_${currentDate.replace(/\//g, '-')}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  };
-
-  // API Functions
-  const fetchEtherscanData = async (address) => {
-    try {
-      console.log('Fetching real blockchain data for:', address);
-      
-      const response = await fetch(`/api/analyze?address=${address}`);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch blockchain data');
-      }
-      
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error('Blockchain analysis failed');
-      }
-      
-      console.log('Real blockchain data received:', {
-        ethBalance: data.ethBalance,
-        tokenCount: data.tokens.length,
-        txCount: data.txCount,
-        recentTxs: data.recentTxs
-      });
-      
-      // Format data to match what your existing app expects
-      return {
-        ethBalance: data.ethBalance,
-        tokens: data.tokens.map(token => ({
-          contractAddress: token.contractAddress,
-          balance: token.balance,
-          symbol: token.symbol
-        })),
-        txCount: data.txCount,
-        firstTxTimestamp: data.firstTxTimestamp,
-        recentTxs: data.recentTxs
-      };
-      
-    } catch (error) {
-      console.error('Real API fetch error:', error);
-      throw new Error(`Failed to fetch blockchain data: ${error.message}`);
-    }
-  };
-
-  const fetchCoinGeckoData = async (tokens) => {
-    try {
-      console.log('Fetching real price data for tokens:', tokens.map(t => t.symbol));
-      
-      // Create comma-separated token list including ETH
-      const tokenSymbols = ['eth', ...tokens.map(t => t.symbol.toLowerCase())].join(',');
-      
-      const response = await fetch(`/api/prices?tokens=${tokenSymbols}`);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch price data');
-      }
-      
-      const data = await response.json();
-      
-      console.log('Real price data received:', {
-        ethPrice: data.ethPrice,
-        tokenPricesCount: Object.keys(data.tokenPrices).length
-      });
-      
-      return {
-        ethPrice: data.ethPrice,
-        tokenPrices: data.tokenPrices
-      };
-      
-    } catch (error) {
-      console.error('Real price fetch error:', error);
-      
-      // Fallback to prevent app crashes - return reasonable defaults
-      console.warn('Using fallback prices due to API error');
-      return {
-        ethPrice: 2500, // Reasonable ETH price fallback
-        tokenPrices: {
-          'USDC': 1.00,
-          'USDT': 1.00,
-          'DAI': 1.00,
-          'WBTC': 45000,
-          'LINK': 15,
-          'UNI': 7,
-          'AAVE': 90,
-          'ENS': 12
-        }
-      };
-    }
   };
 
   // Risk calculation (same as before)
@@ -834,8 +627,8 @@ Cache expires: ${new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleString()}
                   onClick={() => generatePDFReport(daoData)}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-300"
                 >
-                  <Download className="w-4 h-4" />
-                  Export Report
+                  <pdfExportButton daoData={daoData} />
+                  Generate report
                 </button>
               </div>
             )}

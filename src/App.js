@@ -623,9 +623,9 @@ const ScorApp = () => {
                   Analysis based on LIVE blockchain data • Last updated: {new Date().toLocaleTimeString()}
                 </div>
                 
-                <div className="flex justify-center">
-                  <pdfExportButton daoData={daoData} />
-                </div>
+                <button className="flex justify-center" onClick={() => pdfExportButton(daoData)}>
+                  Generate report
+                </button>
               </div>
             )}
 

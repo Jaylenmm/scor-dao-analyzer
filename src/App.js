@@ -34,7 +34,7 @@ import {
   ALGORITHM_WEIGHTS 
 } from './constants/demoData';
 
-import PDFExportButton from './components/pdfExportButton';
+import pdfExportButton from './components/pdfExportButton';
 
 const ScorApp = () => {
   const [currentView, setCurrentView] = useState('landing'); // 'landing', 'app'
@@ -159,7 +159,7 @@ const ScorApp = () => {
       return;
     }
 
-    if (!demoAddresses.includes(cleanAddress)) {
+    if (!DEMO_ADDRESSES.includes(cleanAddress)) {
       setError('Sorry! We can\'t pull this information in this demo. Try again with one of the suggested addresses below!');
       return;
     }
@@ -168,7 +168,7 @@ const ScorApp = () => {
     setError('');
 
     try {
-      const cachedData = getCachedData(cleanAddress);
+      const cachedData = getCachedAnalysis(cleanAddress);
       if (cachedData) {
         setDaoData(cachedData);
         setLoading(false);
@@ -187,7 +187,7 @@ const ScorApp = () => {
       else if (riskAnalysis.finalScore >= 45) riskLevel = 'Medium';
 
       const analysisData = {
-        name: daoNames[cleanAddress] || 'Unknown DAO',
+        name: DAO_NAMES[cleanAddress] || 'Unknown DAO',
         address: cleanAddress,
         riskScore: riskAnalysis.finalScore,
         riskLevel: riskLevel,
@@ -210,7 +210,7 @@ const ScorApp = () => {
         isRealData: true
       };
 
-      setCachedData(cleanAddress, analysisData);
+      setCachedAnalysis(cleanAddress, analysisData);
       setDaoData(analysisData);
     } catch (error) {
       console.error('Real API analysis error:', error);
@@ -557,7 +557,7 @@ const ScorApp = () => {
                 Test live analysis with these DAO addresses:
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {demoAddresses.slice(0, 12).map((addr) => (
+                  {DEMO_ADDRESSES.slice(0, 12).map((addr) => (
                     <button
                       key={addr}
                       onClick={() => setAddress(addr)}
@@ -566,7 +566,7 @@ const ScorApp = () => {
                       <div className="text-sm font-semibold text-blue-600">
                         Live Data Available
                       </div>
-                      <div className={`font-medium ${textClass}`}>{daoNames[addr]}</div>
+                      <div className={`font-medium ${textClass}`}>{DAO_NAMES[addr]}</div>
                       <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'} font-mono`}>
                         {addr.slice(0, 10)}...{addr.slice(-8)}
                       </div>
@@ -624,7 +624,7 @@ const ScorApp = () => {
                 </div>
                 
                 <button
-                  onClick={() => generatePDFReport(daoData)}
+                  onClick={() => pdfExportButton(daoData)}
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all duration-300"
                 >
                   <pdfExportButton daoData={daoData} />

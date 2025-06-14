@@ -13,22 +13,34 @@ const ScorApp = () => {
 
   // Whitelisted demo addresses
   const demoAddresses = [
-    '0x2b591e99afe9f32eaa6214f7b7629768c40eeb39', // HexTrust DAO
-    '0xa0b86a33e6411cbfc773c6e1f5e4c5c6ee9fc91c', // AlphaGrowth DAO  
-    '0xc3d688b66703497daa19211eedff47f25384cdc3', // StartupFund DAO
-    '0xd4e5f6a789b012c34567890123456789abcdef01', // TechInnovate DAO
-    '0xe5f6a789b012c34567890123456789abcdef012', // DeFiProtocol DAO
-    '0xf6a789b012c34567890123456789abcdef0123' // CreativeDAO
+    '0x28c6c06298d514db089934071355e5743bf21d60', // Binance 14
+    '0x21a31ee1afc51d94c2efccaa2092ad1028285549', // Binance 15  
+    '0xdfd5293d8e347dfe59e90efd55b2956a1343963d', // Binance 16
+    '0x56eddb7aa87536c09ccc2793473599fd21a8b17f', // Binance 17
+    '0x9696f59e4d72e237be84ffd425dcad154bf96976', // Yearn Treasury
+    '0x93a62da5a14c80f265dabc077fcee437b1a0efde', // Yearn Multisig
+    '0x5d3a536e4d6dbd6114cc1ead35777bab948e3643', // Compound cDAI
+    '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b', // Compound Ether  
+    '0x57ab1ec28d129707052df4df418d58a2d46d5f51', // Synthetix SNX
+    '0xa0b86a33e6411cbfc773c6e1f5e4c5c6ee9fc91c', // HexTrust DAO (if real)
+    '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2', // MakerDAO MKR Token
+    '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984', // Uniswap UNI Token
   ];
 
   // Demo DAO names mapping
   const daoNames = {
-    '0x2b591e99afe9f32eaa6214f7b7629768c40eeb39': 'HexTrust DAO',
-    '0xa0b86a33e6411cbfc773c6e1f5e4c5c6ee9fc91c': 'AlphaGrowth DAO',
-    '0xc3d688b66703497daa19211eedff47f25384cdc3': 'StartupFund DAO', 
-    '0xd4e5f6a789b012c34567890123456789abcdef01': 'TechInnovate DAO',
-    '0xe5f6a789b012c34567890123456789abcdef012': 'DeFiProtocol DAO',
-    '0xf6a789b012c34567890123456789abcdef0123': 'CreativeDAO'
+    '0x28c6c06298d514db089934071355e5743bf21d60': 'Binance 14',
+    '0x21a31ee1afc51d94c2efccaa2092ad1028285549': 'Binance 15',
+    '0xdfd5293d8e347dfe59e90efd55b2956a1343963d': 'Binance 16', 
+    '0x56eddb7aa87536c09ccc2793473599fd21a8b17f': 'Binance 17',
+    '0x9696f59e4d72e237be84ffd425dcad154bf96976': 'Yearn Treasury',
+    '0x93a62da5a14c80f265dabc077fcee437b1a0efde': 'Yearn Multisig',
+    '0x5d3a536e4d6dbd6114cc1ead35777bab948e3643': 'Compound cDAI',
+    '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b': 'Compound Ether',
+    '0x57ab1ec28d129707052df4df418d58a2d46d5f51': 'Synthetix SNX',
+    '0xa0b86a33e6411cbfc773c6e1f5e4c5c6ee9fc91c': 'HexTrust DAO',
+    '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2': 'MakerDAO MKR Token',
+    '0x1f9840a85d5af5bf1d1762f925bdaddc4201f984': 'Uniswap UNI Token'
   };
 
   // Email submission (in real app, this would go to your backend)
@@ -751,8 +763,8 @@ Cache expires: ${new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleString()}
                 <div className={`text-center text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                 Test live analysis with these DAO addresses:
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {demoAddresses.slice(0, 4).map((addr) => (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {demoAddresses.slice(0, 12).map((addr) => (
                     <button
                       key={addr}
                       onClick={() => setAddress(addr)}

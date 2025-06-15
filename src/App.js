@@ -620,12 +620,10 @@ const ScorApp = () => {
               <div className="flex justify-between items-center">
                 <div className={`inline-flex items-center gap-2 px-4 py-2 ${darkMode ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-emerald-100 text-emerald-700 border-emerald-200'} border rounded-full text-sm`}>
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  Analysis based on LIVE blockchain data • Last updated: {new Date().toLocaleTimeString()}
+                  Analysis based on live blockchain data • Last updated: {new Date().toLocaleTimeString()}
                 </div>
-                
-                <button className="flex justify-center" onClick={() => pdfExportButton(daoData)}>
-                  Generate report
-                </button>
+    
+                <pdfExportButton daoData={daoData} />
               </div>
             )}
 

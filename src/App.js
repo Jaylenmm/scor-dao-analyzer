@@ -34,6 +34,18 @@ import {
   ALGORITHM_WEIGHTS 
 } from './constants/demoData';
 
+import { 
+  calculateComprehensiveRiskScore, 
+  determineRiskLevel,
+  generateCreditDecision 
+} from './utils/riskCalculator';
+
+import { 
+  buildFormattedHoldings,
+  analyzePortfolioDiversification,
+  analyzeTransactionActivity 
+} from './utils/dataProcessing';
+
 import PDFExportButton from './components/pdfExportButton';
 
 const ScorApp = () => {
@@ -65,92 +77,6 @@ const ScorApp = () => {
     setCurrentView('app');
   };
 
-  // Risk calculation (same as before)
-  const calculateRealRiskScore = (etherscanData, priceData) => {
-    if (!etherscanData || !priceData) return 0;
-
-    const { ethBalance, tokens, txCount, firstTxTimestamp, recentTxs } = etherscanData;
-    const { ethPrice, tokenPrices } = priceData;
-
-    const ethValue = parseFloat(ethBalance) * ethPrice;
-    let tokenValue = 0;
-    let validTokens = 0;
-    
-    tokens.forEach(token => {
-      const price = tokenPrices[token.symbol];
-      if (price) {
-        tokenValue += parseFloat(token.balance) * price;
-        validTokens++;
-      }
-    });
-
-    const totalValue = ethValue + tokenValue;
-
-    const treasuryScore = Math.min(100, Math.log10(totalValue / 100000) * 25);
-    const activityScore = Math.min(100, recentTxs / 5);
-    const totalAssets = 1 + validTokens;
-    const ethRatio = ethValue / totalValue;
-    const diversificationScore = Math.min(100, (totalAssets * 20) * (1 - Math.max(0, ethRatio - 0.7)));
-    const walletAge = (new Date() - new Date(firstTxTimestamp)) / (365 * 24 * 60 * 60 * 1000);
-    const maturityScore = Math.min(100, walletAge * 30);
-    const historyScore = Math.min(100, Math.log10(txCount) * 25);
-
-    const finalScore = Math.round(
-      treasuryScore * 0.30 + 
-      activityScore * 0.25 + 
-      diversificationScore * 0.20 + 
-      maturityScore * 0.15 + 
-      historyScore * 0.10
-    );
-
-    return {
-      finalScore: Math.max(1, Math.min(100, finalScore)),
-      breakdown: {
-        treasury: Math.round(treasuryScore),
-        activity: Math.round(activityScore),
-        diversification: Math.round(diversificationScore),
-        maturity: Math.round(maturityScore),
-        history: Math.round(historyScore)
-      },
-      totalValue,
-      ethValue,
-      tokenValue,
-      assetCount: totalAssets
-    };
-  };
-
-  const buildHoldingsData = (etherscanData, priceData, riskAnalysis) => {
-    if (!etherscanData || !priceData) return [];
-
-    const holdings = [];
-    const { ethBalance, tokens } = etherscanData;
-    const { ethPrice, tokenPrices } = priceData;
-    const { totalValue } = riskAnalysis;
-
-    const ethValue = parseFloat(ethBalance) * ethPrice;
-    holdings.push({
-      token: 'ETH',
-      amount: parseFloat(ethBalance).toFixed(2),
-      value: ethValue,
-      percentage: Math.round((ethValue / totalValue) * 100)
-    });
-
-    tokens.forEach(token => {
-      const price = tokenPrices[token.symbol];
-      if (price) {
-        const value = parseFloat(token.balance) * price;
-        holdings.push({
-          token: token.symbol,
-          amount: parseFloat(token.balance).toLocaleString(),
-          value: value,
-          percentage: Math.round((value / totalValue) * 100)
-        });
-      }
-    });
-
-    return holdings.sort((a, b) => b.percentage - a.percentage);
-  };
-
   const analyzeDAO = async () => {
     const cleanAddress = address.trim().toLowerCase();
     
@@ -178,40 +104,12 @@ const ScorApp = () => {
       const etherscanData = await fetchEtherscanData(cleanAddress);
       const priceData = await fetchCoinGeckoData(etherscanData.tokens);
       
-      const riskAnalysis = calculateRealRiskScore(etherscanData, priceData);
-      const holdings = buildHoldingsData(etherscanData, priceData, riskAnalysis);
-
-      let riskLevel = 'High';
-      if (riskAnalysis.finalScore >= 80) riskLevel = 'Low';
-      else if (riskAnalysis.finalScore >= 65) riskLevel = 'Medium-Low';
-      else if (riskAnalysis.finalScore >= 45) riskLevel = 'Medium';
-
-      const analysisData = {
-        name: DAO_NAMES[cleanAddress] || 'Unknown DAO',
-        address: cleanAddress,
-        riskScore: riskAnalysis.finalScore,
-        riskLevel: riskLevel,
-        balance: parseFloat(etherscanData.ethBalance).toFixed(2),
-        balanceUSD: riskAnalysis.totalValue.toLocaleString(),
-        transactions30d: etherscanData.recentTxs,
-        totalTransactions: etherscanData.txCount,
-        walletAge: etherscanData.firstTxTimestamp,
-        diversificationScore: riskAnalysis.breakdown.diversification,
-        treasuryStability: riskAnalysis.finalScore >= 70 ? 'Stable' : riskAnalysis.finalScore >= 50 ? 'Moderate' : 'Volatile',
-        governanceActivity: riskAnalysis.breakdown.activity >= 80 ? 'Very High' : 
-                          riskAnalysis.breakdown.activity >= 60 ? 'High' :
-                          riskAnalysis.breakdown.activity >= 40 ? 'Medium' : 'Low',
-        lastActivity: etherscanData.recentTxs > 100 ? '2 hours ago' : 
-                     etherscanData.recentTxs > 50 ? '1 day ago' :
-                     etherscanData.recentTxs > 10 ? '3 days ago' : '2 weeks ago',
-        paymentReliability: Math.min(95, riskAnalysis.breakdown.activity + riskAnalysis.breakdown.history),
-        topHoldings: holdings.slice(0, 5),
-        breakdown: riskAnalysis.breakdown,
-        isRealData: true
-      };
-
-      setCachedAnalysis(cleanAddress, analysisData);
-      setDaoData(analysisData);
+      const riskAnalysis = calculateComprehensiveRiskScore(etherscanData, priceData);
+      const riskLevel = determineRiskLevel(riskAnalysis.finalScore);
+      const creditDecision = generateCreditDecision(riskAnalysis.finalScore);
+      const holdings = buildFormattedHoldings(etherscanData, priceData, riskAnalysis);
+      const activityAnalysis = analyzeTransactionActivity(etherscanData);
+      
     } catch (error) {
       console.error('Real API analysis error:', error);
       

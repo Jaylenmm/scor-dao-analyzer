@@ -34,7 +34,7 @@ import {
   ALGORITHM_WEIGHTS 
 } from './constants/demoData';
 
-import pdfExportButton from './components/pdfExportButton';
+import PDFExportButton from './components/pdfExportButton';
 
 const ScorApp = () => {
   const [currentView, setCurrentView] = useState('landing'); // 'landing', 'app'
@@ -623,7 +623,7 @@ const ScorApp = () => {
                   Analysis based on live blockchain data • Last updated: {new Date().toLocaleTimeString()}
                 </div>
     
-                <pdfExportButton daoData={daoData} />
+                <PDFExportButton daoData={daoData} />
               </div>
             )}
 

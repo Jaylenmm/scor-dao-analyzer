@@ -12,6 +12,41 @@ const supabase = createClient(supabaseURL, supabaseAnonKey);
  * @returns {Promise<Object>} Success/error response
  */
 export const storeEmailSignup = async (email, source = 'landing_page') => {
+  console.log('=== EMAIL SIGNUP DEBUG ===')
+  console.log('Email:', email)
+  console.log('Source:', source)
+  
+  // Check Supabase client configuration
+  console.log('Supabase URL:', supabase.supabaseUrl)
+  console.log('Supabase Key (first 20 chars):', supabase.supabaseKey?.substring(0, 20))
+  
+  // Check current session/auth state
+  const { data: { session } } = await supabase.auth.getSession()
+  console.log('Current session:', session ? 'authenticated' : 'anonymous')
+  console.log('Auth state:', session?.user ? 'logged in' : 'not logged in')
+  
+  try {
+    const { data, error } = await supabase
+      .from('email_signups')
+      .insert([{ 
+        email: email.trim().toLowerCase(),
+        source: source || 'landing_page'
+      }])
+      .select()
+
+    console.log('Insert result:', { data, error })
+    console.log('Error details:', error)
+    
+    if (error) {
+      return { success: false, message: error.message }
+    }
+
+    return { success: true, data }
+  } catch (err) {
+    console.error('Network error:', err)
+    return { success: false, message: 'Network error occurred' }
+  }
+
     try {
       console.log('Storing email signup:', email);
   

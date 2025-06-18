@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "jspdf": "^3.0.1",
     "lucide-react": "^0.514.0",
+    "postgres": "^3.4.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-scripts": "5.0.1",

@@ -60,7 +60,7 @@ const ScorApp = () => {
   const [error, setError] = useState('');
   const [darkMode, setDarkMode] = useState(true);
 
-  /* Email submission (in real app, this would go to your backend)
+  // Email submission (in real app, this would go to your backend)
   const submitEmail = () => {
     if (email.trim() && email.includes('@')) {
       // Store in localStorage for demo purposes
@@ -74,7 +74,6 @@ const ScorApp = () => {
       }, 2000);
     }
   };
-  */
 
   const enterApp = () => {
     setCurrentView('app');

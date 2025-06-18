@@ -48,6 +48,8 @@ import {
 
 import PDFExportButton from './components/pdfExportButton';
 
+import EmailSignup from './components/emailSignup';
+
 const ScorApp = () => {
   const [currentView, setCurrentView] = useState('landing'); // 'landing', 'app'
   const [email, setEmail] = useState('');
@@ -58,7 +60,7 @@ const ScorApp = () => {
   const [error, setError] = useState('');
   const [darkMode, setDarkMode] = useState(true);
 
-  // Email submission (in real app, this would go to your backend)
+  /* Email submission (in real app, this would go to your backend)
   const submitEmail = () => {
     if (email.trim() && email.includes('@')) {
       // Store in localStorage for demo purposes
@@ -72,6 +74,7 @@ const ScorApp = () => {
       }, 2000);
     }
   };
+  */
 
   const enterApp = () => {
     setCurrentView('app');
@@ -265,54 +268,18 @@ const ScorApp = () => {
             </div>
 
             {/* Email Signup Section */}
-            <div className={`${cardClass} border rounded-2xl p-8 max-w-2xl mx-auto shadow-lg`}>
-              {!emailSubmitted ? (
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <h2 className={`text-2xl font-bold ${textClass}`}>Get Early Access Updates</h2>
-                    <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      Be the first to know when new features launch. No spam, just product updates.
-                    </p>
-                  </div>
-                  
-                  <div className="flex flex-col md:flex-row gap-4">
-                    <input
-                      type="email"
-                      placeholder="Enter your email address"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={`flex-1 px-4 py-3 ${inputClass} border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300`}
-                      onKeyPress={(e) => e.key === 'Enter' && submitEmail()}
-                    />
-                    <button
-                      onClick={submitEmail}
-                      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2"
-                    >
-                      <Mail className="w-5 h-5" />
-                      Join Waitlist
-                    </button>
-                  </div>
-                  
-                  <div className="text-center">
-                    <button
-                      onClick={enterApp}
-                      className={`text-blue-600 hover:text-blue-500 font-medium transition-colors duration-300`}
-                    >
-                      Skip and try the demo →
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4 text-center">
-                  <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                    <CheckCircle className="w-8 h-8" />
-                  </div>
-                  <h3 className={`text-xl font-bold ${textClass}`}>Thanks for joining!</h3>
-                  <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    We'll keep you updated on scor's progress. Redirecting to the demo...
-                  </p>
-                </div>
-              )}
+            <div className="bg-white rounded-2xl p-8 max-w-2xl mx-auto shadow-lg">
+              <EmailSignup 
+                onSuccess={(result) => {
+                  if (!result.skipped) {
+                    // Email stored successfully
+                    console.log('Email signup successful:', result);
+                  }
+                  // Redirect to app
+                  setCurrentView('app');
+                }}
+                source="landing_page"
+              />
             </div>
 
             {/* Features Preview */}
@@ -455,7 +422,7 @@ const ScorApp = () => {
                 Test live analysis with these DAO addresses:
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {DEMO_ADDRESSES.slice(0, 12).map((addr) => (
+                  {DEMO_ADDRESSES.slice(0, 6).map((addr) => (
                     <button
                       key={addr}
                       onClick={() => setAddress(addr)}

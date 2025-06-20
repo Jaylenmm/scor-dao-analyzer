@@ -16,7 +16,7 @@ export const calculateTreasuryHealth = (totalValueUSD) => {
   
   // Logarithmic scaling: $100K = ~50 points, $1M = ~75 points, $10M+ = ~100 points
   const baseScore = Math.log10(totalValueUSD / 100000) * 25;
-  return Math.max(0, Math.min(100, baseScore));
+  return Math.round(Math.max(0, Math.min(100, baseScore)));
 };
 
 /**

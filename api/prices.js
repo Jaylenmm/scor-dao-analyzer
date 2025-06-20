@@ -142,7 +142,6 @@ export default async function handler(req, res) {
       return {
         ethPrice: data.ethPrice,
         tokenPrices: data.tokenPrices,
-        usdBalance: data.usdBalance
       };
       
     } catch (error) {

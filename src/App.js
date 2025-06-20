@@ -60,6 +60,21 @@ const ScorApp = () => {
   const [error, setError] = useState('');
   const [darkMode, setDarkMode] = useState(true);
 
+  // ADD THE STATE CHANGE MONITOR HERE 👇
+  useEffect(() => {
+    console.log('📋 === DAO DATA STATE CHANGE ===')
+    console.log('daoData is now:', daoData)
+    console.log('Type:', typeof daoData)
+    console.log('Is truthy?', !!daoData)
+    if (daoData) {
+      console.log('Data keys:', Object.keys(daoData))
+      console.log('Has riskScore?', 'riskScore' in daoData)
+    }
+    console.log('================================')
+  }, [daoData])
+  // END OF STATE CHANGE MONITOR 👆
+
+
   // Email submission (in real app, this would go to your backend)
   const submitEmail = () => {
     if (email.trim() && email.includes('@')) {
@@ -80,7 +95,9 @@ const ScorApp = () => {
   };
 
   const analyzeDAO = async () => {
+    console.log('🚀 === ANALYZE DAO START ===')
     const cleanAddress = address.trim().toLowerCase();
+    console.log('Clean address:', cleanAddress)
     
     if (!cleanAddress) {
       setError('Please enter a valid DAO address');
@@ -94,6 +111,7 @@ const ScorApp = () => {
 
     setLoading(true);
     setError('');
+    console.log('✅ Validation passed, starting analysis...')
 
     try {
       const cachedData = getCachedAnalysis(cleanAddress);
@@ -103,15 +121,43 @@ const ScorApp = () => {
         return;
       }
 
+      console.log('🔗 Step 1: Fetching Etherscan data...')
       const etherscanData = await fetchEtherscanData(cleanAddress);
-      const priceData = await fetchCoinGeckoData(etherscanData.tokens);
+      console.log('✅ Etherscan data fetched successfully')
       
+      console.log('🔗 Step 2: Fetching CoinGecko data...')
+      const priceData = await fetchCoinGeckoData(etherscanData.tokens);
+      console.log('✅ CoinGecko data fetched successfully')
+      
+      console.log('🔗 Step 3: Calculating risk analysis...')
       const riskAnalysis = calculateComprehensiveRiskScore(etherscanData, priceData);
+      console.log('✅ Risk analysis completed successfully')
+      
+      console.log('🔗 Step 4: Building formatted data object...')
       const riskLevel = determineRiskLevel(riskAnalysis.finalScore);
       const creditDecision = generateCreditDecision(riskAnalysis.finalScore);
       const holdings = buildFormattedHoldings(etherscanData, priceData, riskAnalysis);
-      const activityAnalysis = analyzeTransactionActivity(etherscanData);
+      console.log('✅ Formatted data object built successfully')
       
+      
+      const activityAnalysis = analyzeTransactionActivity(etherscanData);
+      console.log('✅ Activity analysis completed successfully')
+
+      // Build the final data object
+      const finalData = {
+        // Add all your existing data mapping here
+        riskScore: riskAnalysis.finalScore,
+        riskLevel: riskLevel,
+        breakdown: riskAnalysis.breakdown,
+        // ... add all other fields your component expects
+      };
+      
+      console.log('🎯 Step 5: Setting DAO data...')
+      console.log('Final data object:', finalData)
+      
+      setDaoData(finalData);
+      console.log('✅ setDaoData called successfully')
+
     } catch (error) {
       console.error('Real API analysis error:', error);
       

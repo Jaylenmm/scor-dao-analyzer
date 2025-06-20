@@ -4,19 +4,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     
-    <!-- Add permissive CSP to allow JavaScript execution -->
-    <meta http-equiv="Content-Security-Policy" 
-          content="script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; connect-src 'self' https: wss: data:;">
-    
-    <!-- Tailwind CSS CDN (moved after CSP) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Remove CSP entirely for now to test -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="..."> -->
     
     <meta name="theme-color" content="#2563EB" />
-    <meta name="description" content="Scor - Professional DAO Credit Assessment Tool. Get instant, accurate risk scores for any DAO using live blockchain data." />
+    <meta name="description" content="Scor - Professional DAO Credit Assessment Tool" />
     
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Move Tailwind to the end and make it less restrictive -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
     <title>Scor - DAO Credit Assessment</title>
   </head>

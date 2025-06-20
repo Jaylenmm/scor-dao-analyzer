@@ -6,7 +6,8 @@ const EmailSignup = ({
   onSuccess, 
   className = '', 
   source = 'landing_page',
-  showSkipOption = true 
+  showSkipOption = true,
+  darkMode = false 
 }) => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

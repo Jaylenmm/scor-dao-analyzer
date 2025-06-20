@@ -337,10 +337,10 @@ const ScorApp = () => {
             </div>
 
             {/* Email Signup Section */}
-            <div className="bg-white rounded-2xl p-8 max-w-2xl mx-auto shadow-lg">
+            <div className={`${darkMode ? 'bg-gray-50' : 'bg-gray-50'} text-black rounded-2xl p-8 max-w-2xl mx-auto shadow-lg`}>
               <EmailSignup 
                 onSuccess={(result) => {
-                  if (!result.skipped) {
+                  if (!result.skipped) {  
                     // Email stored successfully
                     console.log('Email signup successful:', result);
                   }
@@ -348,6 +348,7 @@ const ScorApp = () => {
                   setCurrentView('app');
                 }}
                 source="landing_page"
+                darkMode={darkMode} 
               />
             </div>
 

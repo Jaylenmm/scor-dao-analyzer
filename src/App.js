@@ -155,7 +155,7 @@ const ScorApp = () => {
       
       // Treasury info  
       balance: etherscanData.ethBalance,
-      balanceUSD: etherscanData.usdBalance,
+      balanceUSD: (riskAnalysis.portfolioMetrics?.totalValue || 0).toLocaleString(),
       
       // Activity metrics
       transactions30d: etherscanData.recentTxs,

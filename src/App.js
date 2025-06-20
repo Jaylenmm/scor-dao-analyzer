@@ -137,20 +137,43 @@ const ScorApp = () => {
       const riskLevel = determineRiskLevel(riskAnalysis.finalScore);
       const creditDecision = generateCreditDecision(riskAnalysis.finalScore);
       const holdings = buildFormattedHoldings(etherscanData, priceData, riskAnalysis);
-      console.log('✅ Formatted data object built successfully')
-      
-      
       const activityAnalysis = analyzeTransactionActivity(etherscanData);
-      console.log('✅ Activity analysis completed successfully')
+
+      console.log('✅ Formatted data object built successfully')
 
       // Build the final data object
       const finalData = {
-        // Add all your existing data mapping here
-        riskScore: riskAnalysis.finalScore,
-        riskLevel: riskLevel,
-        breakdown: riskAnalysis.breakdown,
-        // ... add all other fields your component expects
-      };
+      // Basic info
+      name: DAO_NAMES[cleanAddress] || 'Unknown DAO',
+      address: cleanAddress,
+      isRealData: true,
+      
+      // Risk scores
+      riskScore: riskAnalysis.finalScore,
+      riskLevel: riskLevel,
+      breakdown: riskAnalysis.breakdown,
+      
+      // Treasury info  
+      balance: etherscanData.ethBalance,
+      
+      // Activity metrics
+      transactions30d: etherscanData.recentTxs,
+      totalTransactions: etherscanData.txCount,
+      lastActivity: activityAnalysis.lastActivity,
+      walletAge: activityAnalysis.walletAge,
+      
+      // Analysis results
+      diversificationScore: riskAnalysis.breakdown.diversification,
+      treasuryStability: activityAnalysis.treasuryStability,
+      governanceActivity: activityAnalysis.activityLevel,
+      paymentReliability: Math.min(95, riskAnalysis.finalScore + 10), // Calculated field
+      
+      // Holdings data - ENSURE THIS IS AN ARRAY
+      topHoldings: holdings || [],
+      
+      // Cache the data
+      lastUpdated: new Date().toISOString()
+    };
       
       console.log('🎯 Step 5: Setting DAO data...')
       console.log('Final data object:', finalData)

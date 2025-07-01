@@ -55,7 +55,7 @@ export default async function handler(req, res) {
       // Process the data
       const ethBalance = (parseInt(balanceData.result) / 1e18).toFixed(4); // Convert Wei to ETH
       const transactions = txListData.result || [];
-      const tokenTransfers = tokenTxData.result || [];
+      const tokenTransfers = Array.isArray(tokenTxData.result) ? tokenTxData.result : [];
   
       // Calculate recent activity (last 30 days)
       const thirtyDaysAgo = Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60);
